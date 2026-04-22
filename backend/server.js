@@ -18,18 +18,27 @@ dotenv.config();
 connectDB(); // Connects securely to MongoDB
 
 // Middleware Layers
-// Allow local frontend dev servers across ports (e.g. 5173, 5174, 5175).
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+// Allow local dev + production frontend
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(cors({ 
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, etc)
     const isLocalhost =
       typeof origin === "string" &&
       /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
 
-    if (!origin || allowedOrigins.includes(origin) || isLocalhost) {
+    // Allow any vercel.app subdomain (covers all preview + production deployments)
+    const isVercel = typeof origin === "string" && origin.endsWith('.vercel.app');
+    const isOnRender = typeof origin === "string" && origin.endsWith('.onrender.com');
+
+    if (!origin || allowedOrigins.includes(origin) || isLocalhost || isVercel || isOnRender) {
       callback(null, true);
     } else {
+      console.error(`[CORS] Blocked: ${origin}`);
       callback(new Error("Not allowed by CORS"));
     }
   },
