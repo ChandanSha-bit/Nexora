@@ -72,45 +72,45 @@ const Landing = () => {
 
       {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080b10]/90 backdrop-blur-xl">
-        <div className="mx-auto max-w-6xl px-5 sm:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl bg-[#0d1117] border border-white/[0.08] flex items-center justify-center">
+        <div className="mx-auto max-w-6xl px-4 sm:px-8 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-xl bg-[#0d1117] border border-white/[0.08] flex items-center justify-center shrink-0">
               <AuthLogo className="h-5 w-5 text-white" />
             </div>
             <span className="text-[15px] font-bold tracking-tight">Nexora</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Link to="/login" className="px-4 py-1.5 text-[13px] text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/[0.05]">
+          <div className="flex items-center gap-1.5">
+            <Link to="/login" className="px-3 py-2 text-[13px] text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/[0.05]">
               Log in
             </Link>
-            <Link to="/register" className="px-4 py-1.5 text-[13px] font-semibold bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg transition-colors">
-              Sign up free
+            <Link to="/register" className="px-3 py-2 text-[13px] font-semibold bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg transition-colors">
+              Sign up
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-5 sm:px-8 pt-20 pb-16 text-center">
+      <section className="mx-auto max-w-6xl px-4 sm:px-8 pt-12 sm:pt-20 pb-10 sm:pb-16 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1 text-xs text-indigo-300 mb-6">
+          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-300 mb-5">
             <Sparkles className="h-3 w-3" /> Full-stack real-time chat app
           </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-5">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.15] mb-4">
             Chat that feels{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
               instant
             </span>
           </h1>
-          <p className="text-gray-500 text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-8">
+          <p className="text-gray-500 text-[14px] sm:text-lg max-w-lg mx-auto leading-relaxed mb-7 px-2">
             Nexora is a modern real-time messaging app built with React, Node.js, and Socket.IO.
             Send messages, images, and documents — all in a clean dark interface.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Link to="/register" className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-[14px] font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+            <Link to="/register" className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-[14px] font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20">
               Get started <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/login" className="inline-flex items-center gap-2 px-6 py-2.5 border border-white/[0.1] hover:bg-white/[0.05] text-gray-300 text-[14px] font-medium rounded-xl transition-all">
+            <Link to="/login" className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/[0.1] hover:bg-white/[0.05] text-gray-300 text-[14px] font-medium rounded-xl transition-all">
               Sign in
             </Link>
           </div>
@@ -121,55 +121,42 @@ const Landing = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="mt-14 mx-auto max-w-2xl bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden shadow-2xl shadow-black/60"
+          className="mt-10 sm:mt-14 mx-auto max-w-lg bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden shadow-2xl shadow-black/60"
         >
-          {/* Chat header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]">
-            <div className="h-8 w-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 text-sm font-semibold">A</div>
+            <div className="h-8 w-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 text-sm font-semibold shrink-0">A</div>
             <div>
               <p className="text-[13px] font-semibold text-white">Alex</p>
               <p className="text-[11px] text-emerald-400">● Active now</p>
             </div>
           </div>
-          {/* Messages */}
-          <div className="px-4 py-4 space-y-3">
+          <div className="px-4 py-4 space-y-2.5">
             <div className="flex justify-start">
-              <div className="bg-white/[0.07] text-gray-200 text-[13px] px-3.5 py-2 rounded-2xl rounded-bl-md max-w-[70%]">
-                Hey! Did you check the new design? 👀
-              </div>
+              <div className="bg-white/[0.07] text-gray-200 text-[13px] px-3.5 py-2 rounded-2xl rounded-bl-md max-w-[80%]">Hey! Did you check the new design? 👀</div>
             </div>
             <div className="flex justify-end">
-              <div className="bg-indigo-500 text-white text-[13px] px-3.5 py-2 rounded-2xl rounded-br-md max-w-[70%]">
-                Yes! Looks amazing. Love the dark theme 🔥
-              </div>
+              <div className="bg-indigo-500 text-white text-[13px] px-3.5 py-2 rounded-2xl rounded-br-md max-w-[80%]">Yes! Looks amazing. Love the dark theme 🔥</div>
             </div>
             <div className="flex justify-start">
-              <div className="bg-white/[0.07] text-gray-200 text-[13px] px-3.5 py-2 rounded-2xl rounded-bl-md max-w-[70%]">
-                Built with Socket.IO so it's real-time ⚡
-              </div>
+              <div className="bg-white/[0.07] text-gray-200 text-[13px] px-3.5 py-2 rounded-2xl rounded-bl-md max-w-[80%]">Built with Socket.IO — real-time ⚡</div>
             </div>
             <div className="flex justify-end">
-              <div className="bg-indigo-500 text-white text-[13px] px-3.5 py-2 rounded-2xl rounded-br-md max-w-[70%]">
-                Ship it! 🚀
-              </div>
+              <div className="bg-indigo-500 text-white text-[13px] px-3.5 py-2 rounded-2xl rounded-br-md max-w-[80%]">Ship it! 🚀</div>
             </div>
           </div>
-          {/* Input */}
           <div className="px-4 py-3 border-t border-white/[0.06]">
-            <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-2.5 text-[13px] text-gray-600">
-              Message Alex...
-            </div>
+            <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-2.5 text-[13px] text-gray-600">Message Alex...</div>
           </div>
         </motion.div>
       </section>
 
       {/* Features */}
-      <section className="mx-auto max-w-6xl px-5 sm:px-8 py-16 border-t border-white/[0.05]">
-        <div className="text-center mb-12">
+      <section className="mx-auto max-w-6xl px-4 sm:px-8 py-12 sm:py-16 border-t border-white/[0.05]">
+        <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">Everything you need to chat</h2>
-          <p className="text-gray-500 text-sm max-w-md mx-auto">A complete messaging experience built from scratch with modern web technologies.</p>
+          <p className="text-gray-500 text-sm max-w-md mx-auto px-2">A complete messaging experience built from scratch with modern web technologies.</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {features.map((f, i) => (
             <motion.div
               key={i}
@@ -190,12 +177,12 @@ const Landing = () => {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-6xl px-5 sm:px-8 py-16 border-t border-white/[0.05]">
-        <div className="text-center mb-12">
+      <section className="mx-auto max-w-6xl px-4 sm:px-8 py-12 sm:py-16 border-t border-white/[0.05]">
+        <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">How it works</h2>
           <p className="text-gray-500 text-sm max-w-md mx-auto">Get up and running in under a minute.</p>
         </div>
-        <div className="grid sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
           {steps.map((s, i) => (
             <motion.div
               key={i}
@@ -217,8 +204,8 @@ const Landing = () => {
       </section>
 
       {/* Tech stack */}
-      <section className="mx-auto max-w-6xl px-5 sm:px-8 py-16 border-t border-white/[0.05]">
-        <div className="text-center mb-10">
+      <section className="mx-auto max-w-6xl px-4 sm:px-8 py-12 sm:py-16 border-t border-white/[0.05]">
+        <div className="text-center mb-8 sm:mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">Built with modern tech</h2>
           <p className="text-gray-500 text-sm max-w-md mx-auto">A full-stack project using industry-standard tools.</p>
         </div>
@@ -239,7 +226,7 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-6xl px-5 sm:px-8 py-20 border-t border-white/[0.05]">
+      <section className="mx-auto max-w-6xl px-4 sm:px-8 py-14 sm:py-20 border-t border-white/[0.05]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -247,23 +234,17 @@ const Landing = () => {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white mb-4">
             Ready to get started?
           </h2>
-          <p className="text-gray-500 text-[14px] max-w-sm mx-auto leading-relaxed mb-8">
+          <p className="text-gray-500 text-[14px] max-w-sm mx-auto leading-relaxed mb-7">
             Create a free account and start messaging in seconds.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-2 px-7 py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-[14px] font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20"
-            >
+            <Link to="/register" className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-[14px] font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20">
               Create free account <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 px-7 py-2.5 border border-white/[0.1] hover:bg-white/[0.04] text-gray-400 hover:text-white text-[14px] font-medium rounded-xl transition-all"
-            >
+            <Link to="/login" className="inline-flex items-center gap-2 px-6 py-2.5 border border-white/[0.1] hover:bg-white/[0.04] text-gray-400 hover:text-white text-[14px] font-medium rounded-xl transition-all">
               Sign in
             </Link>
           </div>
@@ -272,12 +253,12 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.05] py-8">
-        <div className="mx-auto max-w-6xl px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mx-auto max-w-6xl px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <AuthLogo className="h-5 w-5 text-white" />
             <span className="text-[13px] font-semibold text-white">Nexora</span>
           </div>
-          <p className="text-[12px] text-gray-600">Built with React · Node.js · Socket.IO · MongoDB</p>
+          <p className="text-[12px] text-gray-600 text-center">Built with React · Node.js · Socket.IO · MongoDB</p>
           <div className="flex items-center gap-4">
             <Link to="/login" className="text-[12px] text-gray-600 hover:text-white transition-colors">Login</Link>
             <Link to="/register" className="text-[12px] text-gray-600 hover:text-white transition-colors">Register</Link>
