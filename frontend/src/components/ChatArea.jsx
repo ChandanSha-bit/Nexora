@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Paperclip, Image as ImageIcon, FileText, Phone, Video, MoreHorizontal } from 'lucide-react';
+import { Send, Paperclip, Image as ImageIcon, FileText, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { axiosInstance } from '../store/useAuthStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -153,12 +153,6 @@ const ChatArea = ({ selectedUser }) => {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button className="h-8 w-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/[0.06] transition-all">
-            <Phone className="h-4 w-4" />
-          </button>
-          <button className="h-8 w-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/[0.06] transition-all">
-            <Video className="h-4 w-4" />
-          </button>
           <button className="h-8 w-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/[0.06] transition-all">
             <MoreHorizontal className="h-4 w-4" />
           </button>
