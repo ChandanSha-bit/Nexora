@@ -1,33 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Mail, Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
+import { Mail, Eye, EyeOff, Lock, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import AuthLogo from '../components/AuthLogo';
 import { useAuthStore } from '../store/useAuthStore';
-
-const containerVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: 20 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1],
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const childVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
-
-const isEmail = (value = '') => /\S+@\S+\.\S+/.test(value);
-const isPhone = (value = '') => /^[+]?[0-9]{8,15}$/.test(value.replace(/\s+/g, ''));
+import AuthLogo from '../components/AuthLogo';
 void motion;
+
+const isEmail = (v = '') => /\S+@\S+\.\S+/.test(v);
+const isPhone = (v = '') => /^[+]?[0-9]{8,15}$/.test(v.replace(/\s+/g, ''));
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,356 +24,175 @@ const Login = () => {
   const navigate = useNavigate();
 
   const {
-    login,
-    isLoggingIn,
-    authUser,
-    requestPasswordResetOtp,
-    sendResetTestEmail,
-    verifyResetOtp,
-    resetPasswordWithOtp,
-    isRequestingResetOtp,
-    isSendingResetTestEmail,
-    isVerifyingResetOtp,
-    isResettingPassword,
+    login, isLoggingIn, authUser,
+    requestPasswordResetOtp, verifyResetOtp, resetPasswordWithOtp,
+    isRequestingResetOtp, isVerifyingResetOtp, isResettingPassword,
   } = useAuthStore();
 
-  useEffect(() => {
-    if (authUser) {
-      navigate('/chat', { replace: true });
-    }
-  }, [authUser, navigate]);
+  useEffect(() => { if (authUser) navigate('/chat', { replace: true }); }, [authUser, navigate]);
 
   useEffect(() => {
-    if (!showForgotModal || resendTimer <= 0) return undefined;
-    const timer = setInterval(() => {
-      setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-
-    return () => clearInterval(timer);
+    if (!showForgotModal || resendTimer <= 0) return;
+    const t = setInterval(() => setResendTimer((p) => p > 0 ? p - 1 : 0), 1000);
+    return () => clearInterval(t);
   }, [showForgotModal, resendTimer]);
 
   const resetForgotState = () => {
-    setForgotStep(1);
-    setForgotOtp('');
-    setForgotNewPassword('');
-    setForgotConfirmPassword('');
-    setResetToken('');
-    setResendTimer(0);
+    setForgotStep(1); setForgotOtp(''); setForgotNewPassword('');
+    setForgotConfirmPassword(''); setResetToken(''); setResendTimer(0);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
-      return toast.error('All fields are required');
-    }
-    if (!isEmail(formData.email)) {
-      return toast.error('Please enter a valid email');
-    }
+    if (!formData.email || !formData.password) return toast.error('All fields are required');
+    if (!isEmail(formData.email)) return toast.error('Enter a valid email');
     login(formData);
-    return null;
   };
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
-    const identifier = forgotIdentifier.trim().toLowerCase();
-    if (!isEmail(identifier) && !isPhone(identifier)) {
-      return toast.error('Please enter a valid email or phone number');
-    }
-
-    const result = await requestPasswordResetOtp(identifier);
-    if (result?.ok) {
-      setForgotStep(2);
-      setResendTimer(result?.resendAfterSeconds || 60);
-    }
-    return null;
+    const id = forgotIdentifier.trim().toLowerCase();
+    if (!isEmail(id) && !isPhone(id)) return toast.error('Enter a valid email or phone');
+    const r = await requestPasswordResetOtp(id);
+    if (r?.ok) { setForgotStep(2); setResendTimer(r.resendAfterSeconds || 60); }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!forgotOtp || forgotOtp.trim().length !== 6) {
-      return toast.error('Enter the 6-digit OTP');
-    }
-
-    const result = await verifyResetOtp({
-      identifier: forgotIdentifier.trim().toLowerCase(),
-      otp: forgotOtp.trim(),
-    });
-    if (result?.ok && result?.resetToken) {
-      setResetToken(result.resetToken);
-      setForgotStep(3);
-    }
-    return null;
+    if (forgotOtp.trim().length !== 6) return toast.error('Enter the 6-digit OTP');
+    const r = await verifyResetOtp({ identifier: forgotIdentifier.trim().toLowerCase(), otp: forgotOtp.trim() });
+    if (r?.ok && r?.resetToken) { setResetToken(r.resetToken); setForgotStep(3); }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-
-    if (!forgotNewPassword || forgotNewPassword.length < 6) {
-      return toast.error('New password must be at least 6 characters');
-    }
-    if (forgotNewPassword !== forgotConfirmPassword) {
-      return toast.error('Passwords do not match');
-    }
-    if (!resetToken) {
-      return toast.error('Session expired. Please verify OTP again.');
-    }
-
-    const ok = await resetPasswordWithOtp({
-      identifier: forgotIdentifier.trim().toLowerCase(),
-      resetToken,
-      newPassword: forgotNewPassword,
-    });
-    if (ok) {
-      setShowForgotModal(false);
-      resetForgotState();
-    }
-    return null;
+    if (forgotNewPassword.length < 6) return toast.error('Min 6 characters');
+    if (forgotNewPassword !== forgotConfirmPassword) return toast.error('Passwords do not match');
+    const ok = await resetPasswordWithOtp({ identifier: forgotIdentifier.trim().toLowerCase(), resetToken, newPassword: forgotNewPassword });
+    if (ok) { setShowForgotModal(false); resetForgotState(); }
   };
 
-  const handleResendOtp = async () => {
-    if (resendTimer > 0 || isRequestingResetOtp) return;
-    const result = await requestPasswordResetOtp(forgotIdentifier.trim().toLowerCase());
-    if (result?.ok) {
-      setResendTimer(result?.resendAfterSeconds || 60);
-      toast.success('OTP sent successfully');
-    }
-  };
-
-  const handleSendTestEmail = async () => {
-    const identifier = forgotIdentifier.trim().toLowerCase();
-    if (!isEmail(identifier)) {
-      toast.error('Enter a valid email to send test email');
-      return;
-    }
-    await sendResetTestEmail(identifier);
-  };
+  const inputCls = "w-full bg-white/[0.04] border border-white/[0.08] rounded-xl py-2.5 pl-10 pr-4 text-[13.5px] text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:bg-white/[0.06] transition-all";
 
   return (
-    <div className="min-h-screen bg-[#0F1115] flex items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-[#080b10] flex items-center justify-center p-4">
       <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="bg-[#161B22] w-full max-w-[345px] rounded-2xl p-4 sm:p-5 shadow-2xl border border-white/10"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="w-full max-w-[360px]"
       >
-        <motion.div variants={childVariants} className="mb-3 flex items-center justify-center">
-          <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-indigo-200">
-            Secure Login
-          </span>
-        </motion.div>
-
-        <motion.div variants={childVariants} className="flex justify-center">
-          <AuthLogo />
-        </motion.div>
-
-        <motion.div variants={childVariants} className="mb-4 mt-2 text-center">
-          <h1 className="text-white text-lg font-semibold">Welcome back</h1>
-          <p className="mt-1 text-xs text-gray-400">Sign in to continue your conversations</p>
-        </motion.div>
-
-        <form className="space-y-3" onSubmit={handleSubmit}>
-          <motion.div variants={childVariants} className="space-y-1.5">
-            <label className="text-gray-300 text-xs font-semibold tracking-wide uppercase">Email</label>
-            <div className="relative flex items-center group">
-              <Mail className="absolute left-3.5 text-gray-500 h-4 w-4 group-focus-within:text-white transition-colors" />
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-[#0F1115] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-[13px] text-white focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 transition-all placeholder-gray-600"
-                placeholder="hi@nexora.com"
-              />
-            </div>
+        <div className="flex flex-col items-center mb-8">
+          <motion.div
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+            className="h-14 w-14 rounded-2xl bg-[#080b10] border border-white/[0.08] flex items-center justify-center mb-4"
+          >
+            <AuthLogo className="h-8 w-8 text-white" />
           </motion.div>
+          <h1 className="text-white text-xl font-bold tracking-tight">Welcome back</h1>
+          <p className="text-gray-600 text-sm mt-1">Sign in to your Nexora account</p>
+        </div>
 
-          <motion.div variants={childVariants} className="space-y-1.5">
-            <label className="text-gray-300 text-xs font-semibold tracking-wide uppercase">Password</label>
-            <div className="relative flex items-center group">
-              <KeyRound className="absolute left-3.5 text-gray-500 h-4 w-4 group-focus-within:text-white transition-colors" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-[#0F1115] border border-white/10 rounded-xl py-2 pl-10 pr-10 text-[13px] text-white focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 transition-all placeholder-gray-600"
-                placeholder="••••••••••"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 text-gray-500 hover:text-white transition-colors"
-                tabIndex="-1"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+        {/* Card */}
+        <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-6 shadow-2xl">
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600" />
+                <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputCls} placeholder="you@example.com" />
+              </div>
             </div>
-          </motion.div>
 
-          <motion.div variants={childVariants} className="flex items-center justify-between mt-1">
-            <p className="text-[11px] text-gray-500">Use your registered account credentials</p>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Password</label>
+                <button type="button" onClick={() => { setShowForgotModal(true); setForgotIdentifier(formData.email || ''); resetForgotState(); }} className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors">
+                  Forgot password?
+                </button>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600" />
+                <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className={`${inputCls} pr-10`} placeholder="••••••••" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors" tabIndex="-1">
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
             <button
-              type="button"
-              onClick={() => {
-                setShowForgotModal(true);
-                setForgotIdentifier(formData.email || '');
-                resetForgotState();
-              }}
-              className="text-[11px] text-gray-400 hover:text-white transition-colors"
-            >
-              Forgot Password?
-            </button>
-          </motion.div>
-
-          <motion.div variants={childVariants}>
-            <motion.button
-              whileHover={{ scale: 1.01, backgroundColor: '#818cf8' }}
-              whileTap={{ scale: 0.97 }}
               type="submit"
               disabled={isLoggingIn}
-              className="w-full flex items-center justify-center bg-indigo-500 text-white text-[13px] font-semibold rounded-xl py-2 transition-colors mt-2 shadow-md disabled:bg-gray-500 disabled:cursor-not-allowed"
+              className="w-full h-10 bg-indigo-500 hover:bg-indigo-400 disabled:bg-white/[0.06] disabled:text-gray-600 text-white text-[13.5px] font-semibold rounded-xl transition-all flex items-center justify-center mt-2 shadow-lg shadow-indigo-500/20"
             >
-              {isLoggingIn ? <Loader2 className="animate-spin h-5 w-5" /> : 'Log In'}
-            </motion.button>
-          </motion.div>
-        </form>
+              {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign in'}
+            </button>
+          </form>
+        </div>
 
-        <motion.p variants={childVariants} className="text-center text-xs text-gray-400 mt-4 border-t border-white/10 pt-3">
-          Don't have an account? <Link to="/register" className="text-white hover:underline font-medium">Sign up</Link>
-        </motion.p>
+        <p className="text-center text-[12.5px] text-gray-600 mt-5">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Create one</Link>
+        </p>
       </motion.div>
 
+      {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#161B22] p-5">
-            <h2 className="text-sm font-semibold text-white">
-              {forgotStep === 1 && 'Reset your password'}
-              {forgotStep === 2 && 'Verify OTP'}
-              {forgotStep === 3 && 'Set a new password'}
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-sm bg-[#0d1117] border border-white/[0.08] rounded-2xl p-6 shadow-2xl"
+          >
+            <h2 className="text-white font-semibold text-[15px] mb-1">
+              {forgotStep === 1 ? 'Reset password' : forgotStep === 2 ? 'Enter OTP' : 'New password'}
             </h2>
-            <p className="mt-1 text-xs text-gray-400">
-              {forgotStep === 1 && 'Step 1/3: Enter email/phone to receive OTP'}
-              {forgotStep === 2 && 'Step 2/3: Enter OTP and verify your identity'}
-              {forgotStep === 3 && 'Step 3/3: Choose your new password'}
-            </p>
+            <p className="text-gray-600 text-xs mb-5">Step {forgotStep} of 3</p>
 
             {forgotStep === 1 && (
-              <form onSubmit={handleRequestOtp} className="mt-4 space-y-3">
-                <input
-                  type="text"
-                  value={forgotIdentifier}
-                  onChange={(e) => setForgotIdentifier(e.target.value)}
-                  placeholder="you@example.com or +9198xxxxxxx"
-                  className="w-full rounded-lg border border-white/10 bg-[#0F1115] px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400/60"
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={handleSendTestEmail}
-                    disabled={isSendingResetTestEmail}
-                    className="rounded-lg px-3 py-2 text-xs text-indigo-300 hover:bg-white/10 disabled:text-gray-500"
-                  >
-                    {isSendingResetTestEmail ? 'Testing...' : 'Send Test Email'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotModal(false);
-                      resetForgotState();
-                    }}
-                    className="rounded-lg px-3 py-2 text-xs text-gray-300 hover:bg-white/10"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isRequestingResetOtp}
-                    className="rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-400 disabled:bg-gray-600"
-                  >
-                    {isRequestingResetOtp ? (
-                      <span className="inline-flex items-center gap-1">
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                        Sending...
-                      </span>
-                    ) : 'Send OTP'}
+              <form onSubmit={handleRequestOtp} className="space-y-3">
+                <input type="text" value={forgotIdentifier} onChange={(e) => setForgotIdentifier(e.target.value)} placeholder="your@email.com" className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                <div className="flex gap-2 pt-1">
+                  <button type="button" onClick={() => { setShowForgotModal(false); resetForgotState(); }} className="flex-1 h-9 rounded-xl text-xs text-gray-500 hover:bg-white/[0.05] transition-all">Cancel</button>
+                  <button type="submit" disabled={isRequestingResetOtp} className="flex-1 h-9 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-xs font-semibold text-white transition-all flex items-center justify-center">
+                    {isRequestingResetOtp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Send OTP'}
                   </button>
                 </div>
               </form>
             )}
 
             {forgotStep === 2 && (
-              <form onSubmit={handleVerifyOtp} className="mt-4 space-y-3">
-                <input
-                  type="text"
-                  value={forgotOtp}
-                  onChange={(e) => setForgotOtp(e.target.value)}
-                  placeholder="6-digit OTP"
-                  maxLength={6}
-                  className="w-full rounded-lg border border-white/10 bg-[#0F1115] px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400/60"
-                />
+              <form onSubmit={handleVerifyOtp} className="space-y-3">
+                <input type="text" value={forgotOtp} onChange={(e) => setForgotOtp(e.target.value)} placeholder="6-digit OTP" maxLength={6} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 transition-all text-center tracking-[0.3em]" />
                 <div className="flex items-center justify-between text-xs">
-                  <button
-                    type="button"
-                    onClick={handleResendOtp}
-                    disabled={resendTimer > 0 || isRequestingResetOtp}
-                    className="text-indigo-300 hover:text-indigo-200 disabled:text-gray-500"
-                  >
-                    {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
+                  <button type="button" onClick={async () => { if (resendTimer > 0) return; const r = await requestPasswordResetOtp(forgotIdentifier.trim().toLowerCase()); if (r?.ok) setResendTimer(r.resendAfterSeconds || 60); }} disabled={resendTimer > 0 || isRequestingResetOtp} className="text-indigo-400 disabled:text-gray-600 transition-colors">
+                    {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
                   </button>
-                  <span className="text-gray-400">Expires in 10 minutes</span>
+                  <span className="text-gray-600">Expires in 10 min</span>
                 </div>
-                <div className="flex justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setForgotStep(1)}
-                    className="rounded-lg px-3 py-2 text-xs text-gray-300 hover:bg-white/10"
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isVerifyingResetOtp}
-                    className="rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-400 disabled:bg-gray-600"
-                  >
-                    {isVerifyingResetOtp ? 'Verifying...' : 'Verify OTP'}
+                <div className="flex gap-2 pt-1">
+                  <button type="button" onClick={() => setForgotStep(1)} className="flex-1 h-9 rounded-xl text-xs text-gray-500 hover:bg-white/[0.05] transition-all">Back</button>
+                  <button type="submit" disabled={isVerifyingResetOtp} className="flex-1 h-9 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-xs font-semibold text-white transition-all flex items-center justify-center">
+                    {isVerifyingResetOtp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Verify'}
                   </button>
                 </div>
               </form>
             )}
 
             {forgotStep === 3 && (
-              <form onSubmit={handleResetPassword} className="mt-4 space-y-3">
-                <input
-                  type="password"
-                  value={forgotNewPassword}
-                  onChange={(e) => setForgotNewPassword(e.target.value)}
-                  placeholder="New password"
-                  className="w-full rounded-lg border border-white/10 bg-[#0F1115] px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400/60"
-                />
-                <input
-                  type="password"
-                  value={forgotConfirmPassword}
-                  onChange={(e) => setForgotConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
-                  className="w-full rounded-lg border border-white/10 bg-[#0F1115] px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400/60"
-                />
-                <div className="flex justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setForgotStep(2)}
-                    className="rounded-lg px-3 py-2 text-xs text-gray-300 hover:bg-white/10"
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isResettingPassword}
-                    className="rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-400 disabled:bg-gray-600"
-                  >
-                    {isResettingPassword ? 'Resetting...' : 'Reset Password'}
+              <form onSubmit={handleResetPassword} className="space-y-3">
+                <input type="password" value={forgotNewPassword} onChange={(e) => setForgotNewPassword(e.target.value)} placeholder="New password" className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                <input type="password" value={forgotConfirmPassword} onChange={(e) => setForgotConfirmPassword(e.target.value)} placeholder="Confirm password" className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                <div className="flex gap-2 pt-1">
+                  <button type="button" onClick={() => setForgotStep(2)} className="flex-1 h-9 rounded-xl text-xs text-gray-500 hover:bg-white/[0.05] transition-all">Back</button>
+                  <button type="submit" disabled={isResettingPassword} className="flex-1 h-9 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-xs font-semibold text-white transition-all flex items-center justify-center">
+                    {isResettingPassword ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Reset'}
                   </button>
                 </div>
               </form>
             )}
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

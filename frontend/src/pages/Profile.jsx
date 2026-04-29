@@ -89,12 +89,12 @@ const Profile = () => {
     setIsDeletingAccount(false);
     if (ok) navigate('/login', { replace: true });
   };  return (
-    <div className="min-h-screen bg-[#0F1115] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#080b10] flex items-center justify-center p-4">
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="bg-[#161B22] w-full max-w-[380px] rounded-2xl p-5 shadow-2xl border border-white/10"
+        className="bg-[#0d1117] w-full max-w-[380px] rounded-2xl p-6 shadow-2xl border border-white/[0.07]"
       >
         
         {/* Header */}
@@ -140,7 +140,7 @@ const Profile = () => {
                 type="text" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#0F1115] border border-white/10 rounded-lg py-2 pl-9 pr-3 text-[13px] text-white focus:outline-none focus:border-indigo-400/60 transition-colors placeholder-gray-600" 
+                className="w-full bg-[#080b10] border border-white/[0.07] rounded-xl py-2 pl-9 pr-3 text-[13px] text-white focus:outline-none focus:border-indigo-500/50 transition-colors placeholder-gray-600" 
                 placeholder="Your name" 
               />
             </div>
@@ -155,7 +155,7 @@ const Profile = () => {
                 rows="3"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full bg-[#0F1115] border border-white/10 rounded-lg py-2 pl-9 pr-3 text-[13px] text-white focus:outline-none focus:border-indigo-400/60 transition-colors placeholder-gray-600 resize-none" 
+                className="w-full bg-[#080b10] border border-white/[0.07] rounded-xl py-2 pl-9 pr-3 text-[13px] text-white focus:outline-none focus:border-indigo-500/50 transition-colors placeholder-gray-600 resize-none" 
                 placeholder="Tell us about yourself..." 
               />
             </div>
@@ -164,7 +164,7 @@ const Profile = () => {
           {/* Email (read-only) */}
           <motion.div variants={childVariants} className="space-y-1.5">
             <label className="text-gray-400 text-[11px] font-medium uppercase tracking-wider">Email</label>
-            <div className="w-full bg-[#0F1115] border border-white/10 rounded-lg py-2 px-3 text-[13px] text-gray-400">
+            <div className="w-full bg-[#080b10] border border-white/[0.07] rounded-xl py-2 px-3 text-[13px] text-gray-500">
               {authUser?.email}
             </div>
           </motion.div>
