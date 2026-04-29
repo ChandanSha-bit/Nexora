@@ -54,7 +54,7 @@ export const useAuthStore = create((set) => ({
       toast.success('Account created successfully!');
     } catch (error) {
       if (!error.response) {
-        toast.error('Cannot reach server. Please start backend and check API URL/CORS.');
+        toast.error('Server is starting up, please try again in a moment.');
       } else {
         toast.error(error.response?.data?.message || 'Failed to create account');
       }
@@ -101,7 +101,7 @@ export const useAuthStore = create((set) => ({
       };
     } catch (error) {
       if (!error.response) {
-        toast.error('Cannot reach server. Check backend, API URL, and CORS.');
+        toast.error('Server is starting up, please try again in a moment.');
       } else {
         toast.error(error.response?.data?.message || 'Failed to request password reset');
       }
@@ -119,7 +119,7 @@ export const useAuthStore = create((set) => ({
       return true;
     } catch (error) {
       if (!error.response) {
-        toast.error('Cannot reach server. Check backend, API URL, and CORS.');
+        toast.error('Server is starting up, please try again in a moment.');
       } else {
         toast.error(error.response?.data?.message || 'Failed to send test email');
       }
