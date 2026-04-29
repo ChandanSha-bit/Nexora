@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Paperclip, Image as ImageIcon, FileText, MoreHorizontal } from 'lucide-react';
+import { Send, Paperclip, Image as ImageIcon, FileText, MoreHorizontal, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { axiosInstance } from '../store/useAuthStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -7,7 +7,7 @@ import { useSocketStore } from '../store/useSocketStore';
 import toast from 'react-hot-toast';
 void motion;
 
-const ChatArea = ({ selectedUser }) => {
+const ChatArea = ({ selectedUser, onBack }) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -133,8 +133,18 @@ const ChatArea = ({ selectedUser }) => {
     <div className="flex-1 flex flex-col h-full bg-[#0d1117] w-full min-w-0 relative">
 
       {/* Header */}
-      <div className="h-[64px] bg-[#0d1117] border-b border-white/[0.06] flex items-center justify-between px-5 shrink-0 z-30">
-        <div className="flex items-center gap-3">
+      <div className="h-[64px] bg-[#0d1117] border-b border-white/[0.06] flex items-center justify-between px-4 shrink-0 z-30">
+        <div className="flex items-center gap-2.5">
+          {/* Back button — mobile only */}
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="md:hidden h-8 w-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all mr-1"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+          )}
           <div className="relative">
             {selectedUser.profilePic ? (
               <img src={selectedUser.profilePic} alt={selectedUser.name} className="h-9 w-9 rounded-full object-cover ring-2 ring-white/10" />

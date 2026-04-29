@@ -10,35 +10,59 @@ const Chat = () => {
   const [sidebarWidth] = useState(300);
   const { connectSocket, disconnectSocket } = useSocketStore();
 
-  // Connect socket when chat page mounts, disconnect on unmount
   useEffect(() => {
     connectSocket();
-    return () => {
-      disconnectSocket();
-    };
+    return () => disconnectSocket();
   }, [connectSocket, disconnectSocket]);
 
+  // On mobile: when user selects someone, hide sidebar and show chat
+  const handleSelectUser = (user) => {
+    setSelectedUser(user);
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // On mobile: back button goes back to sidebar
+  const handleBack = () => {
+    setSelectedUser(null);
+    setIsSidebarOpen(true);
+  };
 
   return (
-    <div className="h-screen w-full bg-[#080b10] flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-hidden">
-      <div className="w-full h-full sm:max-w-5xl flex flex-row sm:rounded-2xl overflow-hidden shadow-2xl shadow-black/80 ring-1 ring-white/[0.06] bg-[#0d1117]">
+    <div className="h-screen w-full bg-[#080b10] flex items-center justify-center overflow-hidden">
+      <div className="w-full h-full md:max-w-5xl md:p-4 lg:p-6 flex">
+        <div className="w-full h-full flex flex-row md:rounded-2xl overflow-hidden shadow-2xl shadow-black/80 ring-1 ring-white/[0.06] bg-[#0d1117]">
 
-        {/* Sidebar */}
-        <div
-          className="h-full flex-shrink-0 bg-[#0d1117] z-20 transition-all duration-200 ease-out relative border-r border-white/[0.06]"
-          style={{ width: isSidebarOpen ? sidebarWidth : 64 }}
-        >
-          <Sidebar
-            isSidebarOpen={isSidebarOpen}
-            toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-            onSelectUser={setSelectedUser}
-            activeUserId={selectedUser?._id}
-          />
-        </div>
+          {/* Sidebar — full screen on mobile when no user selected, fixed width on desktop */}
+          <div
+            className={`
+              h-full flex-shrink-0 bg-[#0d1117] z-20 transition-all duration-200 ease-out relative border-r border-white/[0.06]
+              ${selectedUser ? 'hidden md:block' : 'w-full md:block'}
+            `}
+            style={{ width: window.innerWidth >= 768 ? (isSidebarOpen ? sidebarWidth : 64) : undefined }}
+          >
+            <Sidebar
+              isSidebarOpen={isSidebarOpen}
+              toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+              onSelectUser={handleSelectUser}
+              activeUserId={selectedUser?._id}
+            />
+          </div>
 
-        {/* Main Chat Area */}
-        <div className="flex-1 h-full min-w-0 bg-[#0d1117] relative flex flex-col">
-          {!selectedUser ? <NoChatSelected /> : <ChatArea selectedUser={selectedUser} />}
+          {/* Chat Area — full screen on mobile when user selected */}
+          <div
+            className={`
+              h-full min-w-0 bg-[#0d1117] relative flex flex-col
+              ${selectedUser ? 'flex-1 w-full' : 'hidden md:flex flex-1'}
+            `}
+          >
+            {!selectedUser
+              ? <NoChatSelected />
+              : <ChatArea selectedUser={selectedUser} onBack={handleBack} />
+            }
+          </div>
+
         </div>
       </div>
     </div>
