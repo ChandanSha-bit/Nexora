@@ -1,5 +1,6 @@
 import Message from '../models/Message.js';
 import cloudinary from '../config/cloudinary.js';
+import { encrypt, decrypt } from '../utils/encryption.js';
 
 // ⚡ Socket Implementation Import
 import { getReceiverSocketId, io } from '../socket/socket.js';
@@ -53,10 +54,10 @@ export const sendMessage = async (req, res) => {
     const newMessage = new Message({
       senderId,
       receiverId,
-      // For documents: text holds the caption (if any), fileName holds the original name
-      // For images: text holds the caption (if any)
-      // For plain text: text holds the message
-      text: fileType && !fileType.startsWith('image/') ? '' : (text?.trim() || ""),
+      // Encrypt text before storing — AES-256-CBC
+      text: fileType && !fileType.startsWith('image/')
+        ? ''
+        : encrypt(text?.trim() || ""),
       image: imageUrl,
       fileType,
       fileName,
@@ -64,16 +65,20 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
-    // ⚡ REAL-TIME SOCKET ALGORITHM:
-    // 1. Look up if the person we are texting is actively online using our hashmap lookup
+    // Emit decrypted message over socket so receiver sees plain text instantly
     const receiverSocketId = getReceiverSocketId(receiverId);
-
     if (receiverSocketId) {
-      // 2. Direct beam the newly saved message STRICTLY to their specific browser tab instantly
-      io.to(receiverSocketId).emit("newMessage", newMessage);
+      io.to(receiverSocketId).emit('newMessage', {
+        ...newMessage.toObject(),
+        text: decrypt(newMessage.text), // send decrypted to socket
+      });
     }
 
-    res.status(201).json(newMessage);
+    // Return decrypted message to sender too
+    res.status(201).json({
+      ...newMessage.toObject(),
+      text: decrypt(newMessage.text),
+    });
   } catch (error) {
     console.error("Error in sendMessage controller: ", error.message);
     res.status(500).json({ message: "Internal server error" });
@@ -91,9 +96,15 @@ export const getMessages = async (req, res) => {
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
-    }).sort({ createdAt: 1 }); // 1 = Ascending order (oldest messages at top, newest at bottom)
+    }).sort({ createdAt: 1 });
 
-    res.status(200).json(messages);
+    // Decrypt text field for each message before sending to client
+    const decrypted = messages.map((msg) => ({
+      ...msg.toObject(),
+      text: decrypt(msg.text),
+    }));
+
+    res.status(200).json(decrypted);
   } catch (error) {
     console.error("Error in getMessages controller: ", error.message);
     res.status(500).json({ message: "Internal server error" });
